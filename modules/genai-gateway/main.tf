@@ -55,7 +55,7 @@ resource "aws_lambda_function" "bedrock_handler" {
 
   environment {
     variables = {
-      MODEL_ID = "anthropic.claude-3-haiku-20240307"
+      INFERENCE_PROFILE_ARN = "arn:aws:bedrock:us-east-1:380171316226:inference-profile/us.anthropic.claude-3-5-haiku-20241022-v1:0"
     }
   }
 }
