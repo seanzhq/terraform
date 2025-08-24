@@ -1,7 +1,6 @@
 import json
 import boto3
 import os
-import re
 
 
 PROMPT_TASK = '''
@@ -34,20 +33,20 @@ PROMPT_CONTEXT = '''
 # Scoring Guidelines
 The Analytical Writing score ranges from 0 to 6 in half-point increments. Use the following criteria:
 
-- **6 / 5.5**: Insightful, in-depth analysis of complex ideas; highly persuasive and well-developed arguments; well organized; strong sentence variety and precise vocabulary; superior grammar/usage with only minor errors.
-- **5 / 4.5**: Generally thoughtful analysis; logically sound arguments with appropriate examples; good organization; clear meaning; good control of grammar and sentence structure with minor errors.
-- **4 / 3.5**: Competent analysis; adequately developed arguments; acceptable organization; clarity is adequate but may contain noticeable errors.
-- **3 / 2.5**: Limited analysis; weak organization; weak grammar/usage control with errors that reduce clarity.
-- **2 / 1.5**: Serious weaknesses in analysis, organization, or grammar/usage; frequent errors that obscure meaning.
-- **1 / 0.5**: Fundamentally deficient; incoherent or irrelevant content; pervasive errors.
+- **6 / 5.5**: Direct engagement with the assigned prompt; insightful, in-depth analysis of complex ideas; highly persuasive and well-developed arguments; well organized; strong sentence variety and precise vocabulary; superior grammar/usage with only minor errors.
+- **5 / 4.5**: Direct engagement with the assigned prompt; generally thoughtful analysis; logically sound arguments with appropriate examples; good organization; clear meaning; good control of grammar and sentence structure with minor errors.
+- **4 / 3.5**: Direct engagement with the assigned prompt; competent analysis; adequately developed arguments; acceptable organization; clarity is adequate but may contain noticeable errors.
+- **3 / 2.5**: Direct engagement with the assigned prompt; limited analysis; weak organization; weak grammar/usage control with errors that reduce clarity.
+- **2 / 1.5**: Direct engagement with the assigned prompt; serious weaknesses in analysis, organization, or grammar/usage; frequent errors that obscure meaning.
+- **1 / 0.5**: Direct engagement with the assigned prompt; Fundamentally deficient; incoherent or irrelevant content; pervasive errors.
 - **0**: Essay is unscorable (off-topic, copied, non-English, or gibberish).
 - **NS**: No response provided.
 
 # Feedback Requirements
-- **overallFeedbacks**: Provide clear pros and cons, along with specific areas for improvement (content, structure, clarity, grammar, etc.).
-- **sentenceSuggestions**: Generate up to 10 of the most impactful suggestions. Each entry must include:
+- **overallFeedbacks**: Provide balanced feedback that highlights both the strengths (pros) and weaknesses (cons) of the essay. For each point of feedback, cite a specific example from the original response to illustrate why the feedback was given. In addition, offer concrete, actionable steps the writer can take immediately to improve, such as reorganizing paragraphs, refining the thesis statement, correcting grammar, or incorporating stronger examples.
+- **sentenceSuggestions**: Generate between 10 and 20 of the most impactful sentence-level suggestions. Prioritize the sentences where revisions will lead to the greatest improvement in clarity, grammar, style, or overall effectiveness of the essay. Each entry must include:
   - The exact original sentence.
-  - An improved version with more elegant expression, grammar corrections, or clarity improvements.
+  - Provide an improved version of the original sentence that demonstrates more elegant expression, corrected grammar, and clearer meaning. Alongside the revision, explain specifically how the changes enhance the sentence (e.g., stronger word choice, smoother flow, grammatical accuracy, or improved clarity). Include targeted, actionable advice tied to this sentence so the writer knows what to apply consistently in future writing.
   - The zero-based index of the sentence within the essay.
 '''
 
@@ -86,8 +85,15 @@ def lambda_handler(event, context):
             body=json.dumps({
                 "anthropic_version": "bedrock-2023-05-31",
                 "messages": messages,
-                "max_tokens": 2000, # Adjust as needed
-                "temperature": 0.7 # Adjust as needed
+                "max_tokens": 2048, # Adjust as needed
+                "temperature": 0.7, # Adjust as needed
+                "system": (
+                    "You are acting as a GRE grader. "
+                    "Your role is to evaluate GRE writing responses by assigning an appropriate score "
+                    "and providing constructive, insightful feedback. The feedback should mirror the style "
+                    "of official GRE scoring: objective, criteria-based, and focused on helping the writer "
+                    "understand their strengths and weaknesses, along with concrete steps for improvement."
+                ),
             })
         )
 
